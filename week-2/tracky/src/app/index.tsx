@@ -6,7 +6,7 @@ import DefaultView from "@design/View/DefaultView";
 import { Variables } from "@style/theme";
 import { Stack, useRouter } from "expo-router";
 import { useState } from "react";
-import { StyleSheet } from "react-native";
+import { ScrollView, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const Login = () => {
@@ -19,47 +19,52 @@ const Login = () => {
   };
 
   return (
-    <SafeAreaView>
+    <SafeAreaView style={styles.safeArea}>
       <Stack.Screen options={{ headerShown: false }} />
 
-      <DefaultView>
-        <Logo style={styles.logo} />
-        <ThemedText type="title" style={styles.title}>
-          Login met je account
-        </ThemedText>
+      <ScrollView>
+        <DefaultView>
+          <Logo style={styles.logo} />
+          <ThemedText type="title" style={styles.title}>
+            Login met je account
+          </ThemedText>
 
-        <TextField
-          label="Email"
-          name="email"
-          placeholder="john@doe.com"
-          autoComplete="email"
-          keyboardType="email-address"
-          onChangeText={(email) => handleInput("email", email)}
-          value={data.email}
-        />
+          <TextField
+            label="Email"
+            name="email"
+            placeholder="john@doe.com"
+            autoComplete="email"
+            keyboardType="email-address"
+            onChangeText={(email) => handleInput("email", email)}
+            value={data.email}
+          />
 
-        <TextField
-          label="Password"
-          name="password"
-          secureTextEntry={true}
-          onChangeText={(password) => handleInput("password", password)}
-          value={data.password}
-        />
+          <TextField
+            label="Password"
+            name="password"
+            secureTextEntry={true}
+            onChangeText={(password) => handleInput("password", password)}
+            value={data.password}
+          />
 
-        <Button
-          style={styles.button}
-          onPress={() => {
-            router.push("/(tabs)");
-          }}
-        >
-          Login
-        </Button>
-      </DefaultView>
+          <Button
+            style={styles.button}
+            onPress={() => {
+              router.push("/(tabs)");
+            }}
+          >
+            Login
+          </Button>
+        </DefaultView>
+      </ScrollView>
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+  },
   title: {
     marginBottom: Variables.sizes["2xl"],
   },
