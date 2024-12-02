@@ -1,9 +1,9 @@
 import { StyleProp, StyleSheet, TextInput, TextInputProps, View, ViewStyle } from "react-native";
 import React from "react";
-import isVoid from "@core/utils/isVoid";
 import { Variables } from "@style/theme";
 import FieldError from "@design/Form/FieldError";
 import Label from "@design/Form/Label";
+import isEmptyText from "@core/utils/isEmptyText";
 
 export type TextFieldProps = TextInputProps & {
   name: string;
@@ -32,7 +32,7 @@ const TextField = ({
   return (
     <View style={[styles.container, style]}>
       {label && <Label>{label}</Label>}
-      <View style={[styles.background, !isVoid(error) && styles.backgroundError]}>
+      <View style={[styles.background, !isEmptyText(error) && styles.backgroundError]}>
         <TextInput
           style={styles.input}
           value={value}
@@ -43,7 +43,7 @@ const TextField = ({
           {...rest}
         />
       </View>
-      {!isVoid(error) && <FieldError>{error}</FieldError>}
+      {!isEmptyText(error) && <FieldError>{error}</FieldError>}
     </View>
   );
 };

@@ -1,5 +1,5 @@
 import { createClient } from "@core/modules/clients/api";
-import ClientForm from "@functional/Clients/ClientForm";
+import ClientForm from "@functional/Clients/Form/ClientForm";
 import { Variables } from "@style/theme";
 import { Stack, useRouter } from "expo-router";
 import { StyleSheet } from "react-native";

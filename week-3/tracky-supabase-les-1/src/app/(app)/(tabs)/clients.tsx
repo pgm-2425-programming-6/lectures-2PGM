@@ -57,7 +57,7 @@ const Clients = () => {
           icon="briefcase"
           title="Nog geen klanten"
           description="Voeg je eerste klant toe"
-          onPress={() => {}}
+          onPress={() => router.push("/clients/create")}
         />
       </DefaultView>
     );

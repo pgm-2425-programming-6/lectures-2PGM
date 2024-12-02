@@ -4,7 +4,7 @@ import ErrorMessage from "@design/Alert/ErrorMessage";
 import LoadingIndicator from "@design/Loading/LoadingIndicator";
 import CenteredView from "@design/View/CenteredView";
 import DefaultView from "@design/View/DefaultView";
-import ClientForm from "@functional/Clients/ClientForm";
+import ClientForm from "@functional/Clients/Form/ClientForm";
 import { Variables } from "@style/theme";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
