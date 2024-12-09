@@ -1,38 +1,32 @@
 import { getProjectById, updateProject } from "@core/modules/projects/api";
-import { ProjectWithClient } from "@core/modules/projects/types";
 import ErrorMessage from "@design/Alert/ErrorMessage";
 import LoadingIndicator from "@design/Loading/LoadingIndicator";
 import CenteredView from "@design/View/CenteredView";
 import DefaultView from "@design/View/DefaultView";
 import ProjectForm from "@functional/Projects/Form/ProjectForm";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
-import { useEffect, useState } from "react";
 
 const UpdateProject = () => {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const [project, setProject] = useState<ProjectWithClient | null>();
-  const [error, setError] = useState<unknown | null>();
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    if (!id) {
-      router.back();
-    }
+  const {
+    data: project,
+    error,
+    isLoading,
+  } = useQuery({
+    queryKey: ["clients", id],
+    queryFn: () => getProjectById(id),
+  });
 
-    const fetchData = async () => {
-      try {
-        const data = await getProjectById(id);
-        if (data) {
-          setProject(data);
-        } else {
-          throw new Error("No data returned from API");
-        }
-      } catch (error) {
-        setError(error);
-      }
-    };
-    fetchData();
-  }, [id]);
+  const handleSuccess = () => {
+    queryClient.invalidateQueries({
+      queryKey: ["projects"],
+    });
+    router.back();
+  };
 
   if (error) {
     return (
@@ -42,7 +36,7 @@ const UpdateProject = () => {
     );
   }
 
-  if (!project) {
+  if (!project || isLoading) {
     return (
       <CenteredView>
         <LoadingIndicator />
@@ -50,7 +44,7 @@ const UpdateProject = () => {
     );
   }
 
-  // remove clienet from project
+  // remove client from project
   const { client, ...data } = project;
 
   return (
@@ -59,7 +53,7 @@ const UpdateProject = () => {
       <ProjectForm
         initialData={data}
         updateMethod={updateProject}
-        onSuccess={() => router.back()}
+        onSuccess={handleSuccess}
         label="Aanpassen"
       />
     </>

@@ -1,40 +1,34 @@
-import { createClient, getClientById, updateClient } from "@core/modules/clients/api";
-import { Client } from "@core/modules/clients/types";
+import { getClientById, updateClient } from "@core/modules/clients/api";
 import ErrorMessage from "@design/Alert/ErrorMessage";
 import LoadingIndicator from "@design/Loading/LoadingIndicator";
 import CenteredView from "@design/View/CenteredView";
 import DefaultView from "@design/View/DefaultView";
 import ClientForm from "@functional/Clients/Form/ClientForm";
 import { Variables } from "@style/theme";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
-import { useEffect, useState } from "react";
 import { StyleSheet } from "react-native";
 
 const UpdateClient = () => {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const [client, setClient] = useState<Client | null>();
-  const [error, setError] = useState<unknown | null>();
   const router = useRouter();
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    if (!id) {
-      router.back();
-    }
+  const {
+    data: client,
+    error,
+    isLoading,
+  } = useQuery({
+    queryKey: ["clients", id],
+    queryFn: () => getClientById(id),
+  });
 
-    const fetchData = async () => {
-      try {
-        const data = await getClientById(id);
-        if (data) {
-          setClient(data);
-        } else {
-          throw new Error("No data returned from API");
-        }
-      } catch (error) {
-        setError(error);
-      }
-    };
-    fetchData();
-  }, [id]);
+  const handleSuccess = () => {
+    queryClient.invalidateQueries({
+      queryKey: ["clients"],
+    });
+    router.back();
+  };
 
   if (error) {
     return (
@@ -44,7 +38,7 @@ const UpdateClient = () => {
     );
   }
 
-  if (!client) {
+  if (!client || isLoading) {
     return (
       <CenteredView>
         <LoadingIndicator />
@@ -58,7 +52,7 @@ const UpdateClient = () => {
       <ClientForm
         label="Pas aan"
         updateMethod={updateClient}
-        onSuccess={() => router.back()}
+        onSuccess={handleSuccess}
         initialData={client}
       />
     </>

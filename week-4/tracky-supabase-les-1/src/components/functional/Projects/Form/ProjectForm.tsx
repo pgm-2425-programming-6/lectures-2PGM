@@ -5,13 +5,14 @@ import TextField from "@design/Form/TextField";
 import DefaultView from "@design/View/DefaultView";
 import ClientsSpinnerField from "@functional/Clients/Spinner/ClientsSpinnerField";
 import { Variables } from "@style/theme";
+import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
 import { ScrollView, StyleSheet } from "react-native";
 
 type Props<T> = {
   initialData: T;
   updateMethod: (data: T) => Promise<Project | null>;
-  onSuccess: (data: Project | null) => void;
+  onSuccess: () => void;
   label: string;
 };
 
@@ -22,25 +23,20 @@ const ProjectForm = <T extends CreateProjectBody | UpdateProjectBody>({
   label,
 }: Props<T>) => {
   const [data, setData] = useState<T>(initialData);
-  const [error, setError] = useState<unknown | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const handleInput = (name: string, value: string | number) => {
     setData(() => ({ ...data, [name]: value }));
   };
 
+  const { mutate, error, isPending } = useMutation({
+    mutationFn: updateMethod,
+    onSuccess: () => {
+      onSuccess();
+    },
+  });
+
   const handleSubmit = () => {
-    setIsLoading(true);
-    updateMethod(data)
-      .then((response) => {
-        if (response) {
-          onSuccess(response);
-        }
-      })
-      .catch((error: any) => {
-        setError(error);
-        setIsLoading(false);
-      });
+    mutate(data);
   };
 
   return (
@@ -54,6 +50,7 @@ const ProjectForm = <T extends CreateProjectBody | UpdateProjectBody>({
           placeholder="project name"
           onChangeText={(name) => handleInput("name", name)}
           value={data.name ?? ""}
+          disabled={isPending}
         />
 
         <ClientsSpinnerField
@@ -61,8 +58,9 @@ const ProjectForm = <T extends CreateProjectBody | UpdateProjectBody>({
           name="client_id"
           onChange={(id: number | string) => handleInput("client_id", id)}
           value={data.id ?? ""}
+          disabled={isPending}
         />
-        <Button disabled={isLoading} style={styles.button} onPress={handleSubmit}>
+        <Button disabled={isPending} style={styles.button} onPress={handleSubmit}>
           {label}
         </Button>
       </DefaultView>

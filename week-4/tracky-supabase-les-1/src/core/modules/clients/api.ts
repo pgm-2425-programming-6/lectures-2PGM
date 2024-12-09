@@ -12,7 +12,8 @@ export const getClientById = async (uid: string | number): Promise<Client | null
 };
 
 export const createClient = async (body: CreateClientBody): Promise<Client | null> => {
-  const { data } = await API.from("clients").insert(body).throwOnError().single();
+  // select() is used to return the inserted data
+  const { data } = await API.from("clients").insert(body).throwOnError().select().single();
   return Promise.resolve(data);
 };
 
@@ -20,6 +21,6 @@ export const updateClient = async (body: UpdateClientBody): Promise<Client | nul
   if (!body.id) {
     throw new Error("Client id is required");
   }
-  const { data } = await API.from("clients").update(body).eq("id", body.id).throwOnError().single();
+  const { data } = await API.from("clients").update(body).eq("id", body.id).throwOnError().select().single();
   return Promise.resolve(data);
 };

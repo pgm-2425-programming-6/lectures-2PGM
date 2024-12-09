@@ -4,6 +4,7 @@ import Button from "@design/Button/Button";
 import TextField from "@design/Form/TextField";
 import DefaultView from "@design/View/DefaultView";
 import { Variables } from "@style/theme";
+import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
 import { ScrollView, StyleSheet } from "react-native";
 
@@ -11,7 +12,7 @@ type Props<T> = {
   label: string;
   initialData: T;
   updateMethod: (data: T) => Promise<Client | null>;
-  onSuccess: (data: Client) => void;
+  onSuccess: () => void;
 };
 
 const ClientForm = <T extends CreateClientBody | UpdateClientBody>({
@@ -21,22 +22,20 @@ const ClientForm = <T extends CreateClientBody | UpdateClientBody>({
   onSuccess,
 }: Props<T>) => {
   const [data, setData] = useState(initialData);
-  const [error, setError] = useState<unknown | null>(null);
 
   const handleInput = (name: string, value: string) => {
     setData(() => ({ ...data, [name]: value }));
   };
 
+  const { mutate, error, isPending } = useMutation({
+    mutationFn: updateMethod,
+    onSuccess: () => {
+      onSuccess();
+    },
+  });
+
   const handleSubmit = () => {
-    updateMethod(data)
-      .then((response) => {
-        if (response) {
-          onSuccess(response);
-        }
-      })
-      .catch((error: any) => {
-        setError(error);
-      });
+    mutate(data);
   };
 
   return (
@@ -50,8 +49,9 @@ const ClientForm = <T extends CreateClientBody | UpdateClientBody>({
           placeholder="client name"
           onChangeText={(name) => handleInput("name", name)}
           value={data.name ?? ""}
+          disabled={isPending}
         />
-        <Button style={styles.button} onPress={handleSubmit}>
+        <Button style={styles.button} onPress={handleSubmit} disabled={isPending}>
           {label}
         </Button>
       </DefaultView>

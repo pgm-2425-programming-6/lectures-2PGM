@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { AuthChangeEvent } from "@supabase/supabase-js";
 import { Auth } from "@core/modules/auth/types";
 import { API } from "@core/networking/api";
-import { getCurrentSession } from "@core/modules/auth/api";
+import { getCurrentSession, login } from "@core/modules/auth/api";
 
 const useSupabaseAuth = () => {
   const [isInitialized, setIsInitialized] = useState<boolean>(false);
@@ -22,7 +22,6 @@ const useSupabaseAuth = () => {
   useEffect(() => {
     API.auth.onAuthStateChange((event: AuthChangeEvent, session) => {
       switch (event) {
-        case "SIGNED_IN":
         case "USER_UPDATED":
         case "TOKEN_REFRESHED":
           const fetchSession = async () => {
@@ -43,11 +42,19 @@ const useSupabaseAuth = () => {
     });
   }, []);
 
+  const handleLogin = async (email: string, password: string) => {
+    await login({ email, password });
+    const auth = await getCurrentSession();
+    setAuth(auth);
+    return auth;
+  };
+
   const isLoggedIn = isInitialized && !!auth;
 
   return {
     isLoggedIn,
     isInitialized,
+    login: handleLogin,
     auth,
     user: auth?.user,
   };

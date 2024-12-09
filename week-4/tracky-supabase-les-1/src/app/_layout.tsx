@@ -5,6 +5,9 @@ import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
 import { DefaultScreenOptions, Theme, Variables } from "@style/theme";
 import AuthProvider from "@functional/Auth/AuthProvider";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+const queryClient = new QueryClient();
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -27,11 +30,13 @@ const RootLayout = () => {
 
   return (
     <ThemeProvider value={Theme}>
-      <AuthProvider>
-        <Stack screenOptions={DefaultScreenOptions}>
-          <Stack.Screen name="(app)" options={{ headerShown: false }} />
-        </Stack>
-      </AuthProvider>
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <Stack screenOptions={DefaultScreenOptions}>
+            <Stack.Screen name="(app)" options={{ headerShown: false }} />
+          </Stack>
+        </AuthProvider>
+      </QueryClientProvider>
       <StatusBar style="auto" />
     </ThemeProvider>
   );

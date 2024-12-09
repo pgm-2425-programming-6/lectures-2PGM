@@ -1,4 +1,3 @@
-import { login } from "@core/modules/auth/api";
 import Button from "@design/Button/Button";
 import TextField from "@design/Form/TextField";
 import Logo from "@design/Logo/Logo";
@@ -11,27 +10,29 @@ import { ScrollView, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import ErrorMessage from "@design/Alert/ErrorMessage";
+import { useAuthContext } from "@functional/Auth/AuthProvider";
+import { useMutation } from "@tanstack/react-query";
 
 const Login = () => {
   const router = useRouter();
+  const { login } = useAuthContext();
   const [data, setData] = useState({ email: "", password: "" });
-  const [error, setError] = useState<unknown | null>(null);
+
+  // file refactored to React-Query (useMutation) compared to class recording
 
   const handleInput = (name: string, value: string) => {
     setData(() => ({ ...data, [name]: value }));
   };
 
+  const { mutate, error, isPending } = useMutation({
+    mutationFn: ({ email, password }: { email: string; password: string }) => login(email, password),
+    onSuccess: () => {
+      router.push("/(app)/(tabs)");
+    },
+  });
+
   const handleSubmit = () => {
-    login(data)
-      .then(() => {
-        // FIXME: Temporary solution to navigate to the home screen
-        setTimeout(() => {
-          router.push("/(app)/(tabs)");
-        }, 1000);
-      })
-      .catch((error) => {
-        setError(error);
-      });
+    mutate(data);
   };
 
   /*
@@ -59,6 +60,7 @@ const Login = () => {
             keyboardType="email-address"
             onChangeText={(email) => handleInput("email", email)}
             value={data.email}
+            disabled={isPending}
           />
 
           <TextField
@@ -67,9 +69,10 @@ const Login = () => {
             secureTextEntry={true}
             onChangeText={(password) => handleInput("password", password)}
             value={data.password}
+            disabled={isPending}
           />
 
-          <Button style={styles.button} onPress={handleSubmit}>
+          <Button style={styles.button} onPress={handleSubmit} disabled={isPending}>
             Login
           </Button>
         </DefaultView>

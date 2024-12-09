@@ -8,25 +8,23 @@ import LoadingIndicator from "@design/Loading/LoadingIndicator";
 import CenteredView from "@design/View/CenteredView";
 import DefaultView from "@design/View/DefaultView";
 import EmptyView from "@design/View/EmptyView";
+import { useQuery } from "@tanstack/react-query";
 import { useNavigation, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { FlatList } from "react-native";
 
 const Clients = () => {
   const router = useRouter();
-  const [clients, setClients] = useState<Client[] | null>();
-  const [error, setError] = useState<unknown>();
   const navigation = useNavigation();
 
-  useEffect(() => {
-    getClients()
-      .then((data) => {
-        setClients(data);
-      })
-      .catch((error) => {
-        setError(error);
-      });
-  }, []);
+  const {
+    data: clients,
+    error,
+    isLoading,
+  } = useQuery({
+    queryKey: ["clients"],
+    queryFn: getClients,
+  });
 
   useEffect(() => {
     navigation.setOptions({
@@ -42,7 +40,7 @@ const Clients = () => {
     );
   }
 
-  if (!clients) {
+  if (!clients || isLoading) {
     return (
       <CenteredView>
         <LoadingIndicator />

@@ -8,28 +8,19 @@ import LoadingIndicator from "@design/Loading/LoadingIndicator";
 import CenteredView from "@design/View/CenteredView";
 import DefaultView from "@design/View/DefaultView";
 import EmptyView from "@design/View/EmptyView";
+import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { FlatList } from "react-native";
 
 const Profiles = () => {
-  const [profiles, setProfiles] = useState<Profile[]>();
-  const [error, setError] = useState<unknown | null>();
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const data = await getProfiles();
-        if (data) {
-          setProfiles(data);
-        } else {
-          throw new Error("No data returned from API");
-        }
-      } catch (error) {
-        setError(error);
-      }
-    };
-    fetchData();
-  }, []);
+  const {
+    data: profiles,
+    error,
+    isLoading,
+  } = useQuery({
+    queryKey: ["profiles"],
+    queryFn: getProfiles,
+  });
 
   if (error) {
     return (
@@ -39,7 +30,7 @@ const Profiles = () => {
     );
   }
 
-  if (!profiles) {
+  if (!profiles || isLoading) {
     return (
       <CenteredView>
         <LoadingIndicator />

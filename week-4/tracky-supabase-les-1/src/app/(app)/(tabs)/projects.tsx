@@ -1,5 +1,4 @@
 import { getProjects } from "@core/modules/projects/api";
-import { Project } from "@core/modules/projects/types";
 import ErrorMessage from "@design/Alert/ErrorMessage";
 import HeaderButton from "@design/Button/HeaderButtonLink";
 import Divider from "@design/List/Divider";
@@ -9,31 +8,23 @@ import CenteredView from "@design/View/CenteredView";
 import DefaultView from "@design/View/DefaultView";
 import EmptyView from "@design/View/EmptyView";
 import { useNavigation } from "@react-navigation/native";
+import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { FlatList } from "react-native";
 
 const Projects = () => {
   const navigation = useNavigation();
   const router = useRouter();
-  const [projects, setProjects] = useState<Project[]>();
-  const [error, setError] = useState<unknown | null>();
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const data = await getProjects();
-        if (data) {
-          setProjects(data);
-        } else {
-          throw new Error("No data returned from API");
-        }
-      } catch (error) {
-        setError(error);
-      }
-    };
-    fetchData();
-  }, []);
+  const {
+    data: projects,
+    error,
+    isLoading,
+  } = useQuery({
+    queryKey: ["projects"],
+    queryFn: getProjects,
+  });
 
   useEffect(() => {
     navigation.setOptions({
@@ -49,7 +40,7 @@ const Projects = () => {
     );
   }
 
-  if (!projects) {
+  if (!projects || isLoading) {
     return (
       <CenteredView>
         <LoadingIndicator />
