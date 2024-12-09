@@ -1,5 +1,4 @@
 import { getProfiles } from "@core/modules/profiles/api";
-import { Profile } from "@core/modules/profiles/types";
 import { formatName } from "@core/modules/profiles/utils";
 import ErrorMessage from "@design/Alert/ErrorMessage";
 import Divider from "@design/List/Divider";
@@ -9,7 +8,6 @@ import CenteredView from "@design/View/CenteredView";
 import DefaultView from "@design/View/DefaultView";
 import EmptyView from "@design/View/EmptyView";
 import { useQuery } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
 import { FlatList } from "react-native";
 
 const Profiles = () => {
