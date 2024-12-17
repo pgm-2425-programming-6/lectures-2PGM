@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { AuthChangeEvent } from "@supabase/supabase-js";
 import { Auth } from "@core/modules/auth/types";
 import { API } from "@core/networking/api";
@@ -8,15 +8,25 @@ const useSupabaseAuth = () => {
   const [isInitialized, setIsInitialized] = useState<boolean>(false);
   const [auth, setAuth] = useState<Auth | null>(null);
 
+  const fetchAuth = useCallback(async () => {
+    try {
+      const auth = await getCurrentSession();
+      setAuth(auth);
+      return auth;
+    } catch (error) {
+      setAuth(null);
+      return null;
+    }
+  }, []);
+
   // 1. Bij opstarten checken of user is ingelogd?
   useEffect(() => {
     const checkAuth = async () => {
-      const auth = await getCurrentSession();
-      setAuth(auth);
+      fetchAuth();
       setIsInitialized(true);
     };
     checkAuth();
-  }, []);
+  }, [fetchAuth]);
 
   // 2. Daarna "watchen" -> is user nog steeds ingelogd?
   useEffect(() => {
@@ -24,15 +34,7 @@ const useSupabaseAuth = () => {
       switch (event) {
         case "USER_UPDATED":
         case "TOKEN_REFRESHED":
-          const fetchSession = async () => {
-            try {
-              const auth = await getCurrentSession();
-              setAuth(auth);
-            } catch (error) {
-              setAuth(null);
-            }
-          };
-          fetchSession();
+          fetchAuth();
           break;
 
         case "SIGNED_OUT":
@@ -40,12 +42,11 @@ const useSupabaseAuth = () => {
           break;
       }
     });
-  }, []);
+  }, [fetchAuth]);
 
   const handleLogin = async (email: string, password: string) => {
     await login({ email, password });
-    const auth = await getCurrentSession();
-    setAuth(auth);
+    const auth = await fetchAuth();
     return auth;
   };
 
@@ -55,6 +56,7 @@ const useSupabaseAuth = () => {
     isLoggedIn,
     isInitialized,
     login: handleLogin,
+    refresh: fetchAuth,
     auth,
     user: auth?.user,
   };

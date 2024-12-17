@@ -1,5 +1,6 @@
 import { API } from "@core/networking/api";
 import { Auth, Role } from "./types";
+import { getProfileById } from "../profiles/api";
 
 export const getCurrentSession = async (): Promise<Auth | null> => {
   const {
@@ -13,13 +14,9 @@ export const getCurrentSession = async (): Promise<Auth | null> => {
   const { user } = session;
 
   const role = await API.from("user_roles").select("*").eq("id", user.id).single();
-  const profile = await API.from("profiles").select("*").eq("id", user.id).single();
+  const profile = await getProfileById(user.id);
 
-  if (!profile.data || !role.data) {
-    return null;
-  }
-
-  if (!profile.data || !role.data) {
+  if (!profile || !role.data) {
     return null;
   }
 
@@ -27,7 +24,7 @@ export const getCurrentSession = async (): Promise<Auth | null> => {
     session,
     user: {
       email: user.email ?? "",
-      ...profile.data,
+      ...profile,
       role: role.data.role as Role,
     },
   };
