@@ -24,7 +24,7 @@ const Settings = () => {
         ItemSeparatorComponent={Divider}
         renderItem={({ item }) =>
           item.type === "account" ? (
-            <CurrentUserListItem onPress={() => {}} />
+            <CurrentUserListItem />
           ) : (
             <ListItem onPress={item.onPress} title={item.title} />
           )
