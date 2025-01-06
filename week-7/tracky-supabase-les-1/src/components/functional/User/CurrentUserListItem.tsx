@@ -16,10 +16,10 @@ const CurrentUserListItem = () => {
     setShowDialog(true);
   };
 
-  const handleOnImage = (image: string) => {
+  const handleOnImage = async (image: string) => {
     try {
       // update profile with new avatar
-      updateProfileAvatar(user.id, image);
+      await updateProfileAvatar(user.id, image);
       // refresh the current user
       refresh();
     } catch (error) {
