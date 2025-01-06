@@ -3,15 +3,17 @@ import { Variables } from "@style/theme";
 import isEmptyText from "@core/utils/isEmptyText";
 import ThemedText from "@design/Typography/ThemedText";
 import TextAvatar from "@design/Avatar/TextAvatar";
+import ImageAvatar from "@design/Avatar/ImageAvatar";
 
 type Props = {
   title: string;
   description?: string;
   avatarText: string;
+  avatarUrl?: string | null;
   onPress: () => void;
 };
 
-const ListProfileItem = ({ title, avatarText, description, onPress }: Props) => {
+const ListProfileItem = ({ title, avatarText, avatarUrl, description, onPress }: Props) => {
   return (
     <Pressable
       style={styles.pressable}
@@ -19,7 +21,8 @@ const ListProfileItem = ({ title, avatarText, description, onPress }: Props) => 
       onPress={onPress}
     >
       <View style={styles.container}>
-        {avatarText && <TextAvatar>{avatarText}</TextAvatar>}
+        {avatarUrl && <ImageAvatar uri={avatarUrl} />}
+        {!avatarUrl && avatarText && <TextAvatar>{avatarText}</TextAvatar>}
         <View style={styles.containerText}>
           <ThemedText type="title">{title}</ThemedText>
           {!isEmptyText(description) && <ThemedText color="light">{description}</ThemedText>}
