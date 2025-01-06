@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { AuthChangeEvent } from "@supabase/supabase-js";
 import { Auth } from "@core/modules/auth/types";
 import { API } from "@core/networking/api";
@@ -8,11 +8,21 @@ const useSupabaseAuth = () => {
   const [isInitialized, setIsInitialized] = useState<boolean>(false);
   const [auth, setAuth] = useState<Auth | null>(null);
 
+  const fetchAuth = useCallback(async () => {
+    try {
+      const auth = await getCurrentSession();
+      setAuth(auth);
+      return auth;
+    } catch (error) {
+      setAuth(null);
+      return null;
+    }
+  }, []);
+
   // 1. Bij opstarten checken of user is ingelogd?
   useEffect(() => {
     const checkAuth = async () => {
-      const auth = await getCurrentSession();
-      setAuth(auth);
+      await fetchAuth();
       setIsInitialized(true);
     };
     checkAuth();
@@ -24,15 +34,7 @@ const useSupabaseAuth = () => {
       switch (event) {
         case "USER_UPDATED":
         case "TOKEN_REFRESHED":
-          const fetchSession = async () => {
-            try {
-              const auth = await getCurrentSession();
-              setAuth(auth);
-            } catch (error) {
-              setAuth(null);
-            }
-          };
-          fetchSession();
+          fetchAuth();
           break;
 
         case "SIGNED_OUT":
@@ -42,12 +44,13 @@ const useSupabaseAuth = () => {
     });
   }, []);
 
-  const handleLogin = async (email: string, password: string) => {
+  const handleLogin = useCallback(async (email: string, password: string) => {
+    // first login
     await login({ email, password });
-    const auth = await getCurrentSession();
-    setAuth(auth);
+    // now get the session (logged in user)
+    const auth = await fetchAuth();
     return auth;
-  };
+  }, []);
 
   const isLoggedIn = isInitialized && !!auth;
 
@@ -55,6 +58,7 @@ const useSupabaseAuth = () => {
     isLoggedIn,
     isInitialized,
     login: handleLogin,
+    refresh: fetchAuth,
     auth,
     user: auth?.user,
   };

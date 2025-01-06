@@ -6,6 +6,7 @@ type AuthContextType = {
   isLoggedIn: boolean;
   user?: User | null;
   auth: Auth | null;
+  refresh: () => Promise<Auth | null>;
   login: (email: string, password: string) => Promise<Auth | null>;
 };
 
@@ -13,7 +14,8 @@ const AuthContext = createContext<AuthContextType>({
   isLoggedIn: false,
   user: null,
   auth: null,
-  login: async () => null,
+  refresh: () => Promise.resolve(null),
+  login: () => Promise.resolve(null),
 });
 
 type Props = {
@@ -21,7 +23,7 @@ type Props = {
 };
 
 const AuthProvider = ({ children }: Props) => {
-  const { isLoggedIn, isInitialized, auth, user, login } = useSupabaseAuth();
+  const { isLoggedIn, isInitialized, login, refresh, auth, user } = useSupabaseAuth();
 
   return (
     <AuthContext.Provider
@@ -30,6 +32,7 @@ const AuthProvider = ({ children }: Props) => {
         user,
         auth,
         login,
+        refresh,
       }}
     >
       {isInitialized ? children : null}
