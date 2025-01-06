@@ -14,7 +14,7 @@ export const getProfileById = async (id: string): Promise<Profile | null> => {
 };
 
 export const updateProfile = async (id: string, profile: Partial<Profile>) => {
-  const { data } = await API.from("profiles").update(profile).eq("id", id).throwOnError();
+  const { data } = await API.from("profiles").update(profile).eq("id", id).select().single().throwOnError();
   return Promise.resolve(data);
 };
 
