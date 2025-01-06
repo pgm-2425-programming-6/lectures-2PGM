@@ -9,14 +9,14 @@ import { QueryKey } from "@tanstack/react-query";
 type Props<T> = {
   name: QueryKey;
   method: () => Promise<T[] | null>;
-  onAddItem: () => void;
+  onAddItem?: () => void;
   emptyIcon: keyof typeof Icons.glyphMap;
   emptyTitle: string;
   emptyDescription: string;
   renderItem: ListRenderItem<T>;
 };
 
-const DataListView = <T extends { id: number }>({
+const DataListView = <T extends { id: number | string }>({
   name,
   method,
   renderItem,

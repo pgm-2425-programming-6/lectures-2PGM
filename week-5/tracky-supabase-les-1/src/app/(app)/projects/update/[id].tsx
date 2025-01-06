@@ -17,7 +17,7 @@ const UpdateProject = () => {
     error,
     isLoading,
   } = useQuery({
-    queryKey: ["clients", id],
+    queryKey: ["projects", id],
     queryFn: () => getProjectById(id),
   });
 
