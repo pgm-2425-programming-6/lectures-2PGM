@@ -30,6 +30,51 @@ export type Database = {
         }
         Relationships: []
       }
+      logs: {
+        Row: {
+          created_at: string
+          date: string
+          description: string
+          id: number
+          owner_id: string
+          project_id: number
+          time: number
+        }
+        Insert: {
+          created_at?: string
+          date: string
+          description: string
+          id?: number
+          owner_id?: string
+          project_id: number
+          time?: number
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          description?: string
+          id?: number
+          owner_id?: string
+          project_id?: number
+          time?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "logs_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "logs_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar: string | null
