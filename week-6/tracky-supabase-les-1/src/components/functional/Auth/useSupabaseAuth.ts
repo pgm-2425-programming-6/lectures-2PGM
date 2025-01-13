@@ -22,7 +22,7 @@ const useSupabaseAuth = () => {
   // 1. Bij opstarten checken of user is ingelogd?
   useEffect(() => {
     const checkAuth = async () => {
-      fetchAuth();
+      await fetchAuth();
       setIsInitialized(true);
     };
     checkAuth();
